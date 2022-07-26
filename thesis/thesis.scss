@@ -1,0 +1,180 @@
+@mixin defaults {
+    font-family: Times, Serif;
+    font-size: 11pt;
+    text-align: justify;
+}
+
+@page {
+    @include defaults;
+    margin: 2cm 2.5cm;
+}
+
+@page body:left {
+    @top-left {
+        content: counter(page);
+        vertical-align: bottom;
+    }
+    @top-right {
+        content: "Chapter " counter(chapter) ": " string(chapter);
+        vertical-align: bottom;
+    }
+}
+@page body:right {
+    @top-right {
+        content: counter(page);
+        vertical-align: bottom;
+    }
+    @top-left {
+        content: counter(chapter) "." counter(section) " " string(section);
+        vertical-align: bottom;
+    }
+}
+@page body {
+    border-top: thin black solid;
+}
+@page body:first {
+    margin-top: 25%;
+    @top-left { content: normal; }
+    @top-right { content: normal; }
+    border: none;
+}
+@page body:blank {
+    @top-left { content: normal; }
+    @top-right { content: normal; }
+    border: none;
+}
+body {
+    padding: 0.5cm 0cm;
+    @include defaults;
+}
+
+@page titlepage {
+    @include defaults;
+    @top { content: normal; }
+    @top-left { content: normal; }
+    @top-right { content: normal; }
+}
+
+.titlepage {
+    text-align: center;
+    page: titlepage;
+    .title {
+        margin-top: 6cm;
+        font-size: 28pt;
+    }
+    .author {
+        margin-top: 32pt;
+        margin-bottom: 4cm;
+        font-size: 28pt;
+    }
+    .titlepagetext {
+        font-size: 18pt;
+        margin-bottom: 27pt;
+    }
+}
+
+@page frontmatter {
+    @include defaults;
+    @top { content: normal; }
+    @top-left { content: normal; }
+    @top-right { content: normal; }
+    @bottom { content: counter(page, lower-roman); }
+}
+
+@page frontmatter:blank {
+    @bottom { content: normal; }
+}
+
+p.paperref {
+    margin-left: 1cm;
+    margin-right: 1cm;
+    text-align: left;
+    .pubauthor {
+        font-weight: 600;
+    }
+    .pubhow {
+        font-style: italic;
+    }
+}
+
+ul {
+    margin-left: 20pt;
+    margin-right: 20pt;
+}
+
+.frontmatter {
+    page: frontmatter;
+    counter-reset: page 1;
+}
+
+h1 {
+    page-break-before: right;
+}
+
+.body {
+    counter-reset: page 1;
+    prince-page-group: start;
+    page: body;
+    h1 {
+        margin-bottom: 1em;
+        page-break-before: right;
+        prince-page-group: start;
+        string-set: chapter content();
+        counter-increment: chapter;
+        counter-reset: section;
+    }
+    h1::before {
+        content: "Chapter " counter(chapter) ": ";
+    }
+
+    // XXX: What if a right page is printed before a h2 heading has occured,
+    // I don't think this happens in the thesis as all introductions to
+    // chapters are pretty short, with the exception of chapter 1 which is
+    // still less than three pages.
+    h2 {
+        string-set: section content();
+        counter-increment: section;
+    }
+    h2::before {
+        content: counter(chapter) "." counter(section) " ";
+    }
+
+    a.citep {
+        content: target-content(attr(href));
+        text-decoration: none;
+    }
+    a.citep::before {
+        content: "[";
+        text-decoration: none;
+    }
+    a.citep::after {
+        content: "]";
+        text-decoration: none;
+    }
+
+    a.xref {
+        content: "section\00A0" target-counter(attr(href), chapter) "." target-counter(attr(href), section);
+    }
+    a.xref_chap {
+        content: "chapter\00A0" target-counter(attr(href), chapter);
+    }
+}
+
+div.bibliography {
+    columns: 2;
+    text-align: left;
+    hr, p {
+        display: none;
+    }
+    dt {
+        float: left;
+    }
+    dd {
+        display: block;
+        margin-left: 30pt;
+        margin-bottom: 0.5em;
+        page-break-inside: avoid;
+    }
+}
+
+
